@@ -1,6 +1,9 @@
 from keras.models import Model
 import tensorflow as tf
 import numpy as np
+import matplotlib.pyplot as plt
+
+import random
 
 def deepfool(image, f, grads, num_classes=10, overshoot=0.02, max_iter=50):
 
@@ -22,6 +25,22 @@ def deepfool(image, f, grads, num_classes=10, overshoot=0.02, max_iter=50):
 
     input_shape = image.shape
     pert_image = image
+
+    # generating id for each example
+    # id = random.randint(1, 100000)
+    # id_str = str(id)
+    #
+    # label_str = str(label)
+
+    # saving original image for MNIST
+    # plt.imsave('example_MNIST/original_' + id_str + '.jpeg',
+    #            pert_image[0, :, :, 0],
+    #            cmap='gray')
+
+    # saving original image for CIFAR10
+    # plt.imsave('example_CIFAR10/original_' + label_str + '_' + id_str + '.jpeg',
+    #            pert_image[0],
+    #            cmap='gray')
 
     f_i = np.array(f(pert_image)).flatten()
     k_i = int(np.argmax(f_i))
@@ -55,6 +74,21 @@ def deepfool(image, f, grads, num_classes=10, overshoot=0.02, max_iter=50):
         # compute new perturbed image
         pert_image = image + (1+overshoot)*r_tot
         pert_image = np.clip(pert_image, 0.0, 1.0)
+
+        # save perturbed image for MNIST at 2nd iteration
+        # if loop_i == 1:
+        #     plt.imsave('example_MNIST/iter_2nd_' + id_str + '.jpeg',
+        #                pert_image[0, :, :, 0],
+        #                cmap='gray')
+
+        # save perturbed image for CIFAR10 at 1st iteration
+        # because sometimes 2nd iteration is not produced
+        # if loop_i == 0:
+        #     plt.imsave('example_CIFAR10/iter_2nd_' + label_str + '_' + id_str + '.jpeg',
+        #                pert_image[0],
+        #                cmap='gray')
+
+
         loop_i += 1
 
         # compute new label
@@ -62,6 +96,16 @@ def deepfool(image, f, grads, num_classes=10, overshoot=0.02, max_iter=50):
         k_i = int(np.argmax(f_i))
 
     r_tot = (1+overshoot)*r_tot
+
+    # save the result image for MNIST
+    # plt.imsave('example_MNIST/result_' + id_str + '.jpeg',
+    #            pert_image[0, :, :, 0],
+    #            cmap='gray')
+
+    # save the result image for CIFAR10
+    # plt.imsave('example_CIFAR10/result_' + label_str + '_' + id_str + '.jpeg',
+    #            pert_image[0],
+    #            cmap='gray')
 
     return pert_image
 

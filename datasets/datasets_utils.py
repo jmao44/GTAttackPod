@@ -3,6 +3,7 @@
 from functools import reduce
 from utils.math import reduce_precision_py
 import numpy as np
+import time
 
 
 def get_data_subset_with_systematic_attack_labels(dataset, model, balanced, num_examples):
@@ -11,11 +12,19 @@ def get_data_subset_with_systematic_attack_labels(dataset, model, balanced, num_
     X_test_all, Y_test_all = dataset.get_test_dataset()
 
     print("Evaluating the target model...")
+
+    time_start = time.time()
+
     Y_pred_all = model.predict(X_test_all)
+
+    time_per_example = (time.time() - time_start) / len(Y_pred_all)
+
     mean_conf_all = calculate_mean_confidence(Y_pred_all, Y_test_all)
     accuracy_all = calculate_accuracy(Y_pred_all, Y_test_all)
     print('Test accuracy on benign examples %.2f%%' % (accuracy_all * 100))
     print('Mean confidence on ground truth classes %.2f%%' % (mean_conf_all * 100))
+
+    print('Test time per example {} seconds'.format(time_per_example))
 
     # select examples to attack.
     correct_idx = get_correct_prediction_idx(Y_pred_all, Y_test_all)  # Filter out the misclassified examples.
